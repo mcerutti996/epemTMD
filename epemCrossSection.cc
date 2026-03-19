@@ -34,6 +34,7 @@ double fNP(double const&, double const& b, double const& zetaf)
 int main()
 {
   // Open LHAPDF set
+  LHAPDF::pathsPrepend(".");
   const std::string ffset = "DSS14_NLO_Pip";
   LHAPDF::PDF* distff = LHAPDF::mkPDF(ffset, 0);
 
@@ -119,8 +120,8 @@ int main()
       // Combine TMDs through the EW charges
       double lumi = 0;
       for (int i = 1; i <= nf; i++)
-	lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(-i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(i).Evaluate(z2) );   // Same sign
-	//lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(-i).Evaluate(z2) );   // Opposite sign
+	//lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(-i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(i).Evaluate(z2) );   // Same sign
+	lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(-i).Evaluate(z2) );   // Opposite sign
 
       // Combine all pieces and return
       return b * lumi * fNP(z1, b, zetaf) * fNP(z2, b, zetaf);

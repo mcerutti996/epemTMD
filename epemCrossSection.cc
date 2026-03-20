@@ -138,7 +138,16 @@ int main()
       std::cout << std::scientific << Qb << "  " << yb << "  " << qT << "  " << de << std::endl;
     }
   std::cout << std::endl;
-  
+
+  const int nz = 10;
+  const double zmin = 0.01;
+  const double zmax = 0.9;
+  const double zstp = exp(log(zmax / zmin) / ( nz - 1 ));
+  std::cout << "     z          d(u)/d(ubar) " << std::endl;
+  for (double z = zmin; z <= 1.000001 * zmax; z *= zstp)
+    std::cout << z << "\t" << distff->xfxQ(2, z, Qb) / distff->xfxQ(-2, z, Qb) << std::endl;
+  std::cout << std::endl;
+
   delete distff;
   return 0;
 }

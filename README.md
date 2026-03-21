@@ -7,7 +7,7 @@ This code computes the electron-positron cross section.
 The following external libraries are required:
 
 - [``LHAPDF6``](https://lhapdf.hepforge.org),
-- [``APFEL++``](https://github.com/vbertone/apfelxx)
+- [``APFEL++``](https://github.com/vbertone/apfelxx) (QED branch)
 
 Make sure they are installed and properly configured in your environment.
 

@@ -109,33 +109,50 @@ int main()
   // Compute the hard factor
   const double hcs = Hf(muf);
 
-  // Construct the TMD luminosity in b space to be fed to be
+  // Construct the TMD luminosities in b space to be fed to be
   // trasformed in qT space.
-  const std::function<double(double const&)> TMDLumib = [=] (double const& b) -> double
+  // Opposite sign
+  const std::function<double(double const&)> TMDLumibOS = [=] (double const& b) -> double
     {
       // Get Evolved TMD FFs and rotate them into the physical
       // basis
       const std::map<int,apfel::Distribution> xF = QCDEvToPhys(EvTMDFFs(bstar(b), muf, zetaf).GetObjects());
-	      
+
       // Combine TMDs through the EW charges
       double lumi = 0;
       for (int i = 1; i <= nf; i++)
-	//lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(-i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(i).Evaluate(z2) );   // Same sign
-	lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(-i).Evaluate(z2) );   // Opposite sign
+	lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(-i).Evaluate(z2) );
 
       // Combine all pieces and return
       return b * lumi * fNP(z1, b, zetaf) * fNP(z2, b, zetaf);
     };
+  // Same sign
+  const std::function<double(double const&)> TMDLumibSS = [=] (double const& b) -> double
+    {
+      // Get Evolved TMD FFs and rotate them into the physical
+      // basis
+      const std::map<int,apfel::Distribution> xF = QCDEvToPhys(EvTMDFFs(bstar(b), muf, zetaf).GetObjects());
+
+      // Combine TMDs through the EW charges
+      double lumi = 0;
+      for (int i = 1; i <= nf; i++)
+	lumi += Bq[i-1] * ( xF.at(i).Evaluate(z1) * xF.at(-i).Evaluate(z2) + xF.at(-i).Evaluate(z1) * xF.at(i).Evaluate(z2) );
+
+      // Combine all pieces and return
+      return b * lumi * fNP(z1, b, zetaf) * fNP(z2, b, zetaf);
+    };
+  std::cout << "#    qT            OS            SS" << std::endl;
   for (double qT = qTmin; qT <= 1.000001 * qTmax; qT += qTstp)
     {
       // Perform Fourier transform and obtain cross section
       const double prefactor = apfel::ConvFact * qT * 12 * M_PI * aem2 * hcs / pow(Qb, 2) * ( 1 + pow(1 - yb, 2) ) / 2 / z1 / z2;
 
       // Alternative integration
-      const double de = prefactor * DEObj.transform(TMDLumib, qT);
+      const double deOS = prefactor * DEObj.transform(TMDLumibOS, qT);
+      const double deSS = prefactor * DEObj.transform(TMDLumibSS, qT);
 
       // Print results
-      std::cout << std::scientific << Qb << "  " << yb << "  " << qT << "  " << de << std::endl;
+      std::cout << std::scientific << qT << "  " << deOS << "  " << deSS << std::endl;
     }
   std::cout << std::endl;
 
@@ -143,7 +160,7 @@ int main()
   const double zmin = 0.01;
   const double zmax = 0.9;
   const double zstp = exp(log(zmax / zmin) / ( nz - 1 ));
-  std::cout << "     z          d(u)/d(ubar) " << std::endl;
+  std::cout << "#    z          d(u)/d(ubar) " << std::endl;
   for (double z = zmin; z <= 1.000001 * zmax; z *= zstp)
     std::cout << z << "\t" << distff->xfxQ(2, z, Qb) / distff->xfxQ(-2, z, Qb) << std::endl;
   std::cout << std::endl;
